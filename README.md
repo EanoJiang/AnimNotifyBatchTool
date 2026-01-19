@@ -4,7 +4,7 @@
 
 ## 1. 安装与启动
 
-1.如果你是UE5.7可以直接下载Release打包好的二进制文件，按照正常插件安装流程即可
+如果你是UE5.7可以直接下载Release打包好的二进制文件，按照正常插件安装流程即可
 
 自己编译可以参照以下流程：
 
@@ -14,9 +14,7 @@
 
 在 VS 中编译 `Development Editor` 配置
 
-2.**启用插件**：在 UE 编辑器菜单 `Edit -> Plugins` 中搜索 `Anim Notify Batch Tool` 并确保勾选 `Enabled`。
-
-3.**打开面板**：点击编辑器顶部菜单栏：`Window -> Anim Notify Batch Tool` 或 `Tools -> Anim Notify Batch Tool` 即可打开操作面板。
+**启用插件**：在 UE 编辑器菜单 `Edit -> Plugins` 中搜索 `Anim Notify Batch Tool` 并确保勾选 `Enabled`。
 
 ## 2. 参数说明
 
@@ -44,7 +42,7 @@
 
 ## 3. 使用流程
 
-1. 打开 **Anim Notify Batch Tool** 面板。
+1. 切到Level面板打开 **Anim Notify Batch Tool** 面板
 2. 在 **Anim Assets** 中批量拖入需要处理的动画。
 3. 在 **Rules** 中配置映射关系。例如：
 
