@@ -55,3 +55,7 @@
    -`Target Notify Track Name`: `FootstepTracks`
 4. 点击面板最下方的 **Apply** 按钮。
 5. 查看 **Output Log**（输出日志）确认处理结果。工具会自动跳过在同一帧已经存在相同 Notify 的情况，防止重复添加。
+
+![1768792786847](image/README/1768792786847.png)
+
+![1768792830222](image/README/1768792830222.png)
