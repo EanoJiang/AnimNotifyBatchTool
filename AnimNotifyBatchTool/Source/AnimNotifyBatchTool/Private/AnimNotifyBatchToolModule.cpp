@@ -20,12 +20,14 @@ const FName FAnimNotifyBatchToolModule::TabName(TEXT("AnimNotifyBatchTool"));
 
 void FAnimNotifyBatchToolModule::StartupModule()
 {
+    // 注册NomadTab
     FGlobalTabmanager::Get()->RegisterNomadTabSpawner(
         TabName,
         FOnSpawnTab::CreateRaw(this, &FAnimNotifyBatchToolModule::SpawnPluginTab))
         .SetDisplayName(FText::FromString(TEXT("Anim Notify Batch Tool")))
         .SetMenuType(ETabSpawnerMenuType::Hidden);
 
+    // 通过回调延迟注册菜单入口
     UToolMenus::RegisterStartupCallback(
         FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FAnimNotifyBatchToolModule::RegisterMenus));
 
@@ -39,17 +41,20 @@ void FAnimNotifyBatchToolModule::ShutdownModule()
 {
     UnregisterMenus();
     FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(TabName);
+
     DetailsView.Reset();
     ToolObject.Reset();
 }
 
 TSharedRef<SDockTab> FAnimNotifyBatchToolModule::SpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
+
     if (!ToolObject.IsValid())
     {
         ToolObject = TStrongObjectPtr<UAnimNotifyBatchToolObject>(NewObject<UAnimNotifyBatchToolObject>(GetTransientPackage()));
     }
 
+    // 详情面板
     if (!DetailsView.IsValid())
     {
         FPropertyEditorModule& PropertyEditorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>(TEXT("PropertyEditor"));
@@ -65,6 +70,7 @@ TSharedRef<SDockTab> FAnimNotifyBatchToolModule::SpawnPluginTab(const FSpawnTabA
         DetailsView->SetObject(ToolObject.Get());
     }
 
+    // UI 布局
     return SNew(SDockTab)
         .TabRole(ETabRole::NomadTab)
         [
@@ -126,6 +132,7 @@ void FAnimNotifyBatchToolModule::RegisterMenus()
             })));
     };
 
+    // 插件面板入口
     AddOpenEntry(UToolMenus::Get()->ExtendMenu(TEXT("LevelEditor.MainMenu.Window")));
     AddOpenEntry(UToolMenus::Get()->ExtendMenu(TEXT("LevelEditor.MainMenu.Tools")));
 
