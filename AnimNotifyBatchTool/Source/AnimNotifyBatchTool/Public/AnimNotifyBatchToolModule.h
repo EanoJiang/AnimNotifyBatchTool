@@ -13,9 +13,11 @@ public:
     virtual void ShutdownModule() override;
 
 private:
+    // 编辑器入口（Window/Tools 菜单添加“Anim Notify Batch Tool”）。
     void RegisterMenus();
     void UnregisterMenus();
 
+    // 面板
     TSharedRef<class SDockTab> SpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
 
 private:
