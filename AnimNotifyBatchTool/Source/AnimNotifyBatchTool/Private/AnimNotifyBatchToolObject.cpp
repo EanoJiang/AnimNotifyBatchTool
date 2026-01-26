@@ -15,6 +15,7 @@ static bool NearlyEqualTime(float A, float B)
 
 int32 UAnimNotifyBatchToolObject::GetOrAddNotifyTrackIndex(UAnimSequenceBase* Anim, FName TrackName) const
 {
+    // TrackName 为空时，使用默认 Track(0)
     if (!Anim)
     {
         return 0;
@@ -36,12 +37,14 @@ int32 UAnimNotifyBatchToolObject::GetOrAddNotifyTrackIndex(UAnimSequenceBase* An
 
     for (int32 TrackIndex = 0; TrackIndex < Anim->AnimNotifyTracks.Num(); ++TrackIndex)
     {
+        // 找到TargetTrack
         if (Anim->AnimNotifyTracks[TrackIndex].TrackName == TrackName)
         {
             return TrackIndex;
         }
     }
 
+    // 没找到TargetTrack，则创建新 Track
     FAnimNotifyTrack NewTrack;
     NewTrack.TrackName = TrackName;
     NewTrack.TrackColor = FLinearColor::White;
@@ -119,6 +122,7 @@ void UAnimNotifyBatchToolObject::Apply()
 
 void UAnimNotifyBatchToolObject::ApplyToSingleAnim(UAnimSequenceBase* Anim, const FAnimNotifyBatchRule& Rule)
 {
+    // 解析目标 NotifyClass，并确保是 UAnimNotify 的子类
     UClass* NotifyClass = ResolveNotifyClass(Rule);
     if (!NotifyClass || !NotifyClass->IsChildOf(UAnimNotify::StaticClass()))
     {
@@ -129,10 +133,10 @@ void UAnimNotifyBatchToolObject::ApplyToSingleAnim(UAnimSequenceBase* Anim, cons
     const FName TargetNotifyName = NotifyClass->GetFName();
     const int32 TargetTrackIndex = GetOrAddNotifyTrackIndex(Anim, Rule.TargetNotifyTrackName);
 
-    // 遍历现有 Notifies，找到 SourceNotifyName 的事件，并在同一时间点补 TargetNotify
-    // 注意：这里使用 FAnimNotifyEvent 的常用字段（NotifyName / DisplayTime）
+    // 遍历现有 Notifies，找到 SourceNotifyName 的事件，并在同一帧创建 TargetNotify
     const TArray<FAnimNotifyEvent>& Existing = Anim->Notifies;
 
+    // 先收集要创建的时间点
     TArray<float> TimesToAdd;
     TimesToAdd.Reserve(Existing.Num());
 
@@ -148,7 +152,7 @@ void UAnimNotifyBatchToolObject::ApplyToSingleAnim(UAnimSequenceBase* Anim, cons
         }
     }
 
-    // 兼容 Sync Marker 作为 source（你截图里 FootSyncMarkers 轨上的 L / R）
+    // Sync Marker创建的MarkerName 也可以作为 source
     if (UAnimSequence* AnimSeq = Cast<UAnimSequence>(Anim))
     {
         for (const FAnimSyncMarker& Marker : AnimSeq->AuthoredSyncMarkers)
@@ -168,6 +172,7 @@ void UAnimNotifyBatchToolObject::ApplyToSingleAnim(UAnimSequenceBase* Anim, cons
 
     for (float Time : TimesToAdd)
     {
+        // 去重
         bool bAlreadyExists = false;
         for (const FAnimNotifyEvent& Evt : Anim->Notifies)
         {
@@ -187,6 +192,7 @@ void UAnimNotifyBatchToolObject::ApplyToSingleAnim(UAnimSequenceBase* Anim, cons
             continue;
         }
 
+        // 创建一个新的 Notify 事件
         FAnimNotifyEvent NewEvent;
         NewEvent.NotifyName = TargetNotifyName;
         NewEvent.SetTime(Time);
@@ -198,6 +204,8 @@ void UAnimNotifyBatchToolObject::ApplyToSingleAnim(UAnimSequenceBase* Anim, cons
         UE_LOG(LogTemp, Display, TEXT("[%s] Add Notify: %s at %.3f"), *Anim->GetName(), *TargetNotifyName.ToString(), Time);
     }
 
+    // 刷新动画缓存
     Anim->RefreshCacheData();
+    // 通知编辑器属性变更
     Anim->PostEditChange();
 }
